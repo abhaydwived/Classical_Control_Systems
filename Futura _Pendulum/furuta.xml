@@ -1,0 +1,68 @@
+<mujoco model="furuta">
+
+    <option timestep="0.002" gravity="0 0 -9.81"/>
+
+    <worldbody>
+        <geom type="plane" size="5 5 0.1"/>
+        <body name="base" pos="0 0 0.45">
+            <geom type="cylinder"
+                pos="0 0 -0.225"
+                size="0.05 0.3"
+                rgba="0.1 0.1 0.1 0.5"/>
+            <body name="arm" pos="0 0 0.02">
+
+                <joint name="joint1"
+                    type="hinge"
+                    axis="0 0 1"/>
+
+                <geom type="capsule"
+                    fromto="0 0 0 0.1 0 0"
+                    size="0.02"
+                    mass="0.2"
+                    rgba="0 0 1 1"/>
+
+                <body name="pendulum" pos="0.1 0 0">
+
+                    <joint name="joint2"
+                        type="hinge"
+                        axis="1 0 0"/>
+
+                    <geom type="capsule"
+                        pos="0 0 -0.2"
+                        size="0.015 0.2"
+                        mass="0.1"
+                        rgba="1 0 0 1"/>
+
+                    <!-- Bob at tip for visual clarity -->
+                    <geom type="sphere"
+                        pos="0 0 -0.4"
+                        size="0.025"
+                        rgba="1.0 0.6 0.0 1"
+                        mass="0.2"/>
+                </body>
+            </body>
+        </body>
+    </worldbody>
+
+    <contact>
+        <exclude body1="base" body2="arm"/>
+        <exclude body1="arm" body2="pendulum"/>
+    </contact>
+
+    <actuator>
+        <!-- ctrlrange now matches F_MAX = 10 in the Python script -->
+        <motor joint="joint1"
+           ctrlrange="-20 20"
+           gear="1"/>
+    </actuator>
+
+    <keyframe>
+    <key name="upright"
+        time="0"
+        qpos="0 0"
+        qvel="0 0"
+        ctrl="0"
+    />
+    </keyframe>
+
+</mujoco>
