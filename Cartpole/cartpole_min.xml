@@ -1,6 +1,6 @@
 <mujoco model="cartpole_balance">
 
-    <option timestep="0.002"
+    <option timestep="0.005"
             gravity="0 0 -9.81"
             integrator="RK4"/>
 

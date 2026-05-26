@@ -9,7 +9,7 @@ model = mujoco.MjModel.from_xml_path("rwp.xml")
 data = mujoco.MjData(model)
 
 # Start near upright (pi = straight up from hanging-down zero)
-data.qpos[0] = 0.4  # small perturbation from upright
+data.qpos[0] = 0.3
 data.qpos[1] = 0.0
 data.qvel[0] = 0.0
 data.qvel[1] = 0.0
@@ -17,10 +17,18 @@ data.qvel[1] = 0.0
 mujoco.mj_forward(model, data)
 
 # Tuned gains for upright balance
-kp_theta = 120.0
-kd_theta = 15
-kw      = 2.7
-TORQUE_MAX = 50.0
+kp_theta = 40
+kd_theta = 6.
+kw = 0.*2
+kp_alpha = 0.*0.5
+
+alpha = 0.2
+beta = 0.5
+
+prev_torque = 0
+filtered_theta_dot = 0
+
+TORQUE_MAX = 150.0
 
 log_time, log_theta, log_theta_dot, log_wheel_speed, log_torque = [], [], [], [], []
 
@@ -36,20 +44,38 @@ with mujoco.viewer.launch_passive(model, data) as viewer:
         theta       = data.qpos[0]
         theta_dot   = data.qvel[0]
         wheel_speed = data.qvel[1]
+        wheel_angle = np.tanh(0.3 * data.qpos[1])
 
         # Error from upright equilibrium (pi radians)
-        theta_error = theta - np.pi
+        theta_error = 0. - theta #- np.pi
+
         # print(np.degrees(data.qpos[0]))
 
         # Wrap angle error to [-pi, pi]
         theta_error = (theta_error + np.pi) % (2 * np.pi) - np.pi
+        filtered_theta_dot = (
+            beta * theta_dot +
+            (1 - beta) * filtered_theta_dot
+        )
+
+        if abs(theta_error) < np.radians(1):
+            theta_error = 0
 
         torque = (
-            -kp_theta * theta_error
-            - kd_theta * theta_dot
-            - kw     * wheel_speed
+            kp_theta * theta
+            +kd_theta * theta_dot
+           # -kw * wheel_speed
+            #-kp_alpha * wheel_angle
         )
+
         torque = np.clip(torque, -TORQUE_MAX, TORQUE_MAX)
+
+        # torque = (
+        #     alpha * torque +
+        #     (1 - alpha) * prev_torque
+        # )
+
+        # prev_torque = torque
 
         data.ctrl[0] = torque   # wheel motor only
         # data.ctrl[1] = 0      # stick motor unused

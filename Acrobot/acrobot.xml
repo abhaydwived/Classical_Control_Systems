@@ -1,0 +1,78 @@
+<mujoco model="acrobot">
+
+    <option timestep="0.002"
+            gravity="0 0 -9.81"
+            integrator="RK4"/>
+
+    <compiler angle="radian"/>
+
+    <default>
+        <geom density="1000"
+              friction="0.1 0.1 0.1"
+              rgba="0.7 0.7 0.7 1"/>
+
+    </default>
+
+    <visual>
+        <headlight diffuse="0.6 0.6 0.6"
+                   ambient="0.3 0.3 0.3"
+                   specular="0 0 0"/>
+    </visual>
+
+    <worldbody>
+
+        <camera name="fixed"
+                pos="3 -3 2"
+                xyaxes="1 1 0  -0.5 0.5 1"/>
+
+        <body name="base" pos="0 0 0">
+
+            <!-- Small sphere showing pivot -->
+            <geom type="sphere"
+                  size="0.06"
+                  rgba="1 0 0 1"/>
+
+
+            <body name="link1" pos="0 0 0">
+
+                <!-- Shoulder Joint (Passive) -->
+                <joint name="joint1"
+                       type="hinge"
+                       axis="0 1 0"
+                       pos="0 0 0"/>
+
+                <!-- First Rod -->
+                <geom type="capsule"
+                      fromto="0 0 0  0 0 -1"
+                      size="0.05"
+                      rgba="0 0 1 1"/>
+
+                <body name="link2" pos="0 0 -1">
+
+                    <!-- Elbow Joint (Actuated) -->
+                    <joint name="joint2"
+                           type="hinge"
+                           axis="0 1 0"
+                           pos="0 0 0"/>
+
+                    <!-- Second Rod -->
+                    <geom type="capsule"
+                          fromto="0 0 0  0 0 -1"
+                          size="0.05"
+                          rgba="0 1 0 1"/>
+
+                </body>
+            </body>
+        </body>
+
+    </worldbody>
+
+    <actuator>
+
+        <!-- Motor at elbow -->
+        <motor joint="joint2"
+               gear="1"/>
+
+    </actuator>
+
+</mujoco>

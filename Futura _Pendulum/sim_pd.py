@@ -8,18 +8,18 @@ model = mujoco.MjModel.from_xml_path("furuta.xml")
 data = mujoco.MjData(model)
 
 data.qpos[0] = 0
-data.qpos[1] = np.pi
+data.qpos[1] = np.pi -0.3
 
 data.qvel[0] = 0
 data.qvel[1] = 0
 
 mujoco.mj_forward(model, data)
 
-kp_theta = 10
-kd_theta = 4
+kp_theta = 57.5
+kd_theta = 11
 
-kp_alpha = 10
-kd_alpha = 2
+kp_alpha = -2.3
+kd_alpha = -2
 
 F_MAX = 20.0
 
@@ -52,16 +52,14 @@ with mujoco.viewer.launch_passive(model, data) as viewer:
         alpha_dot = data.qvel[0]
         theta_dot = data.qvel[1]
 
-        e = np.arctan2(
-            np.sin(theta - np.pi),
-            np.cos(theta - np.pi)
-        )
-    
+        e_theta = theta - np.pi
+        e_alpha = alpha
+        
         force = (
-            kp_theta * e
-            + kd_theta * theta_dot
-            -kd_alpha * alpha_dot
-            -kp_alpha * alpha
+            - kp_theta * e_theta
+            - kd_theta * theta_dot
+            - kp_alpha * e_alpha
+            - kd_alpha * alpha_dot
         )
 
         force = np.clip(force, -F_MAX, F_MAX)
@@ -117,23 +115,22 @@ fig.suptitle(
 
 axes[0].plot(t, theta_vals, linewidth=2)
 
-axes[0].axhline(0, linestyle="--")
+axes[0].axhline(180, linestyle="--")
 
 axes[0].set_ylabel("Theta (deg)")
 axes[0].set_title("Pole Angle")
 axes[0].grid(True)
 
 # ------------------------------------------------------------
-# CART POSITION
+# ARM POSITION
 # ------------------------------------------------------------
 
 axes[1].plot(t, x_vals, linewidth=2)
 
 axes[1].axhline(0, linestyle="--")
-axes[1].axhline(1.5, linestyle=":")
-axes[1].axhline(-1.5, linestyle=":")
 
 axes[1].set_ylabel("Alpha (deg)")
+axes[1].set_title("Arm Angle")
 axes[1].grid(True)
 
 # ------------------------------------------------------------
@@ -149,16 +146,16 @@ axes[2].set_title("Pole Angular Velocity")
 axes[2].grid(True)
 
 # ------------------------------------------------------------
-# CONTROL FORCE
+# CONTROL TORQUE
 # ------------------------------------------------------------
 
 axes[3].plot(t, force_vals, linewidth=2)
 
 axes[3].axhline(0, linestyle="--")
 
-axes[3].set_ylabel("Force (N)")
+axes[3].set_ylabel("Torque (Nm)")
 axes[3].set_xlabel("Time (s)")
-axes[3].set_title("Control Force")
+axes[3].set_title("Control Torque")
 axes[3].grid(True)
 
 plt.tight_layout()

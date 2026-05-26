@@ -8,7 +8,7 @@ model = mujoco.MjModel.from_xml_path("cartpole_min.xml")
 data = mujoco.MjData(model)
 
 data.qpos[0] = 0.0
-data.qpos[1] = 1.3
+data.qpos[1] = 0.3
 
 data.qvel[0] = 0.0
 data.qvel[1] = 0.0
