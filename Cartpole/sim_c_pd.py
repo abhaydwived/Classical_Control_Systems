@@ -8,18 +8,18 @@ model = mujoco.MjModel.from_xml_path("cartpole_min.xml")
 data = mujoco.MjData(model)
 
 data.qpos[0] = 0.0
-data.qpos[1] = 0.3
+data.qpos[1] = 0.2
 
 data.qvel[0] = 0.0
 data.qvel[1] = 0.0
 
 mujoco.mj_forward(model, data)
 
-kp_theta = 2
-kd_theta = 0.1
+kp_theta = 35
+kd_theta = 5
 
-kp_x = 2
-kd_x = 0.1
+kp_x = 0.5
+kd_x = 0.2
 
 F_MAX = 25.0
 
@@ -58,10 +58,10 @@ with mujoco.viewer.launch_passive(model, data) as viewer:
             
 
         force = (
-            -kp_theta * theta
-            -kd_theta * theta_dot
-            -kp_x * x
-            -kd_x * x_dot
+            - kp_theta * theta
+            - kd_theta * theta_dot
+            - kp_x * x
+            - kd_x * x_dot
         )
 
 
